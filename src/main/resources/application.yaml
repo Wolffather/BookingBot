@@ -1,7 +1,26 @@
 spring:
   application:
     name: bookingBot
+  datasource:
+    url: ${DATASOURCE_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+      show-sql: false
+      hibernate:
+        ddl-auto: validate
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    user: ${DB_USER}
+    password: ${DB_PASSWORD}
+    locations: classpath:db/migration
 telegram:
   bot:
     token: ${TELEGRAM_BOT_TOKEN}
     username: ${TELEGRAM_BOT_USERNAME}
+
+logging:
+  level:
+    org.flywaydb: DEBUG

@@ -9,10 +9,12 @@ enum class CallbackData(
     SERVICE("SERVICE"),
     DATE("DATE"),
     SLOT("SLOT"),
+    MASTER("MASTER"),
+    SKIP_MASTER("SKIP_MASTER"),
     CANCEL_BOOKING("CANCEL_BOOKING");
 
     companion object {
-        fun fromPrefix(prefix: String) : CallbackData? =
-            CallbackData.entries.find { it.prefix == prefix }
+        fun fromData(data: String) : CallbackData? =
+            CallbackData.entries.find { it.prefix == data || data.contains(it.prefix) }
     }
 }

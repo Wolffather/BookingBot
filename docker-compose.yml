@@ -1,0 +1,11 @@
+services:
+
+  postgres:
+    image: postgres:14.8
+    container_name: booking_bot_postgres
+    environment:
+      POSTGRES_DB: booking_bot_db
+      POSTGRES_USER: bot_usr
+      POSTGRES_PASSWORD: bot_psswrd
+    ports:
+      - "5433:5432"

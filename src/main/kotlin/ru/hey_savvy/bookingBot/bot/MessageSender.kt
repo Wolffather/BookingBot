@@ -29,11 +29,10 @@ class MessageSender() {
             configureAnswerCallbackQuery(callbackQueryId)
         }
 
-
-    private fun configureSender(chatId: Long, text: String): SendMessage =
+    private fun configureSender(chatId: Long, text: String?): SendMessage =
         SendMessage().apply {
             this.chatId = chatId.toString()
-            this.text = text
+            this.text = text.toString()
         }
 
     private fun configureAnswerCallbackQuery(callbackQueryId: String): AnswerCallbackQuery =
