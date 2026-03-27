@@ -11,6 +11,8 @@ class ServiceToBookService(
     private val serviceToBookRepository: ServiceToBookRepository
 ) {
 
+    fun getServiceTitle(id: Long): String = serviceToBookRepository.findById(id).get().title
+
     fun findAvailableServices(): List<ServiceToBook> {
         return serviceToBookRepository.findAll(Sort.by("title"))
     }

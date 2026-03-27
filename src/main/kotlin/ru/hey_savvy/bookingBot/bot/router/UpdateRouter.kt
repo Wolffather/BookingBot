@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.hey_savvy.bookingBot.bot.BotCommand
 import ru.hey_savvy.bookingBot.bot.CallbackData
+import ru.hey_savvy.bookingBot.bot.handler.BookingHandler
 import ru.hey_savvy.bookingBot.bot.handler.MasterHandler
 import ru.hey_savvy.bookingBot.bot.handler.ServiceHandler
 import ru.hey_savvy.bookingBot.bot.handler.StartHandler
@@ -15,11 +16,11 @@ class UpdateRouter(
     private val stateManager: ConversationStateManager,
     private val startHandler: StartHandler,
     private val serviceHandler: ServiceHandler,
-    private val masterHandler: MasterHandler
+    private val masterHandler: MasterHandler,
+    private val bookingHandler: BookingHandler
 
 ) {
     fun route(update: Update) {
-
 
         if (update.hasMessage() && update.message.hasText()) {
             val command = BotCommand.fromText(update.message.text)
@@ -49,16 +50,15 @@ class UpdateRouter(
         val callback = CallbackData.fromData(update.callbackQuery.data)
 
         when (callback) {
-            CallbackData.BOOKING_START,
-            CallbackData.SERVICE -> serviceHandler.handle(update)
+            CallbackData.BOOKING_START, CallbackData.SERVICE -> serviceHandler.handle(update)
 
-            CallbackData.DATE -> {}
-            CallbackData.SLOT -> {}
-            CallbackData.CONFIRM -> {}
+            CallbackData.DATE, CallbackData.SLOT, CallbackData.CONFIRM -> bookingHandler.handle(update)
+
             CallbackData.CANCEL_FLOW -> {}
             CallbackData.CANCEL_BOOKING -> {}
-            CallbackData.MASTER -> masterHandler.handle(update)
-            CallbackData.SKIP_MASTER -> {}
+
+            CallbackData.MASTER, CallbackData.SKIP_MASTER -> masterHandler.handle(update)
+
             null -> Unit
         }
     }
@@ -69,11 +69,11 @@ class UpdateRouter(
 
         when (state.step) {
             Step.IDLE -> {}
-            Step.CHOOSING_DATE -> {}
-            Step.CHOOSING_TIME -> {}
+
+            Step.CHOOSING_DATE, Step.CHOOSING_TIME, Step.CONFIRMING -> bookingHandler.handle(update)
+
             Step.CHOOSING_SERVICE -> serviceHandler.handle(update)
             Step.CHOOSING_MASTER -> masterHandler.handle(update)
-            Step.CONFIRMING -> {}
         }
     }
 }

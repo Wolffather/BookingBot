@@ -1,7 +1,6 @@
 package ru.hey_savvy.bookingBot.bot
 
 import org.springframework.stereotype.Component
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
@@ -24,19 +23,11 @@ class MessageSender() {
             configureSender(chatId, text).apply { replyMarkup = keyboard }
         }
 
-    fun answerCallback(callbackQueryId: String) =
-        execute {
-            configureAnswerCallbackQuery(callbackQueryId)
-        }
-
     private fun configureSender(chatId: Long, text: String?): SendMessage =
         SendMessage().apply {
             this.chatId = chatId.toString()
             this.text = text.toString()
         }
-
-    private fun configureAnswerCallbackQuery(callbackQueryId: String): AnswerCallbackQuery =
-        AnswerCallbackQuery().apply { this.callbackQueryId = callbackQueryId }
 
     private fun<T: Serializable> execute(block: () -> BotApiMethod<T>) {
         try {

@@ -1,5 +1,6 @@
 package ru.hey_savvy.bookingBot.models
 
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -22,6 +23,6 @@ class TimeSlot(
     @Column(name = "is_booked")
     val isBooked: Boolean = false,
     @JoinColumn(name = "master_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     val master: Master,
 )

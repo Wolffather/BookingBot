@@ -15,6 +15,6 @@ enum class CallbackData(
 
     companion object {
         fun fromData(data: String) : CallbackData? =
-            CallbackData.entries.find { it.prefix == data || data.contains(it.prefix) }
+            entries.find { it.prefix == data || data.startsWith(it.prefix + ":") }
     }
 }

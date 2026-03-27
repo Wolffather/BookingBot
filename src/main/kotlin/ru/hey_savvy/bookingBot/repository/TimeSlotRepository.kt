@@ -7,11 +7,16 @@ import org.springframework.stereotype.Repository
 import ru.hey_savvy.bookingBot.models.Master
 import ru.hey_savvy.bookingBot.models.TimeSlot
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Repository
 interface TimeSlotRepository: JpaRepository<TimeSlot, Long> {
 
-    //fun findAvailableTimeSlots(): List<TimeSlot>
+    @Query("SELECT DISTINCT CAST(t.startAt AS LocalDate) FROM TimeSlot t WHERE t.isBooked = false AND t.master = :master")
+    fun findAvailableDatesByMaster(@Param("master") master: Master): List<LocalDate>
+
+    @Query("SELECT DISTINCT CAST(t.startAt AS LocalDate) FROM TimeSlot t WHERE t.isBooked = false")
+    fun findAvailableDates(): List<LocalDate>
 
     @Query("SELECT t FROM TimeSlot t WHERE CAST(t.startAt AS LocalDate) = :date AND t.isBooked = false AND t.master = :master")
     fun findAvailableSlotsByMaster(
@@ -23,4 +28,6 @@ interface TimeSlotRepository: JpaRepository<TimeSlot, Long> {
     fun findAvailableSlots(
         @Param("date") date: LocalDate
     ): List<TimeSlot>
+
+    fun findByStartAt(startAt: LocalDateTime): TimeSlot?
 }
