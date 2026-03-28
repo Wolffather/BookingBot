@@ -4,13 +4,14 @@ import org.springframework.stereotype.Component
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.hey_savvy.bookingBot.bot.CallbackData
 import ru.hey_savvy.bookingBot.bot.MessageSender
+import ru.hey_savvy.bookingBot.bot.keyboard.confirmationsKeyboard
 import ru.hey_savvy.bookingBot.bot.keyboard.datesKeyboard
 import ru.hey_savvy.bookingBot.bot.keyboard.timeSlotsKeyboard
 import ru.hey_savvy.bookingBot.bot.router.chatId
 import ru.hey_savvy.bookingBot.bot.state.ConversationState
 import ru.hey_savvy.bookingBot.bot.state.ConversationStateManager
 import ru.hey_savvy.bookingBot.bot.state.Step
-import ru.hey_savvy.bookingBot.service.ServiceToBookService
+import ru.hey_savvy.bookingBot.service.BookingService
 import ru.hey_savvy.bookingBot.service.TimeSlotService
 import ru.hey_savvy.bookingBot.util.toDisplayString
 import java.time.LocalDate
@@ -22,7 +23,7 @@ class BookingHandler(
     private val messageSender: MessageSender,
     private val stateManager: ConversationStateManager,
     private val timeSlotService: TimeSlotService,
-    private val serviceToBookService: ServiceToBookService,
+    private val bookingService: BookingService
 ) : Handler {
     override fun handle(update: Update) {
         val chatId = update.chatId()
@@ -32,10 +33,18 @@ class BookingHandler(
         when {
             state.step == Step.CHOOSING_DATE && data?.startsWith(CallbackData.DATE.prefix + ":") != true ->
                 showAvailableDates(chatId, state)
+
             data?.startsWith(CallbackData.DATE.prefix + ":") == true ->
                 handleDateChoice(chatId, data)
+
             data?.startsWith(CallbackData.SLOT.prefix + ":") == true ->
                 handleSlotChoice(chatId, state, data)
+
+            data?.equals(CallbackData.CONFIRM.prefix) == true ->
+                handleConfirmation(chatId, update, state)
+
+            data?.equals(CallbackData.CANCEL_FLOW.prefix) == true ->
+                handleCancellation(chatId)
         }
     }
 
@@ -50,12 +59,15 @@ class BookingHandler(
     private fun handleDateChoice(chatId: Long, data: String) {
         val date = LocalDate.parse(data.substringAfter(":"))
         val state = stateManager.getState(chatId)
-        stateManager.setState(chatId, state.copy(
-            step = Step.CHOOSING_TIME,
-            selectedDate = date
-        ))
+        stateManager.setState(
+            chatId, state.copy(
+                step = Step.CHOOSING_TIME,
+                selectedDate = date
+            )
+        )
         showAvailableSlots(chatId, stateManager.getState(chatId))
     }
+
     private fun showAvailableSlots(chatId: Long, state: ConversationState) {
         val date = state.selectedDate
             ?: throw IllegalStateException("Date not selected")
@@ -65,32 +77,47 @@ class BookingHandler(
 
         messageSender.sendMessageWithButtons(chatId, "Выберите время", keyboard)
     }
+
     private fun handleSlotChoice(chatId: Long, state: ConversationState, data: String) {
         val time = LocalTime.parse(data.substringAfter(":"))
         val date = state.selectedDate
             ?: throw IllegalStateException("Date not selected")
         val slotId = timeSlotService.getSlotId(LocalDateTime.of(date, time))
-        stateManager.setState(chatId, state.copy(
-            step = Step.CONFIRMING,
-            selectedSlotId = slotId
-        ))
+        stateManager.setState(
+            chatId, state.copy(
+                step = Step.CONFIRMING,
+                selectedSlotId = slotId
+            )
+        )
 
-        showConfirmation(chatId, stateManager.getState(chatId))
+        showConfirmation(chatId)
     }
-    private fun showConfirmation(chatId: Long, state: ConversationState) {
-        val serviceId = state.selectedServiceId ?: throw IllegalStateException("Service not selected")
-        val slotId = state.selectedSlotId ?: throw IllegalStateException("SlotId not selected")
 
-        val service = serviceToBookService.getServiceTitle(serviceId)
-        val master = timeSlotService.getMasterName(slotId) ?: "Не выбран"
-        val slot = timeSlotService.getSlot(slotId).toDisplayString()
+    private fun showConfirmation(chatId: Long) {
+        val text = "Подтверждаете запись?"
+        val keyboard = confirmationsKeyboard()
+
+        messageSender.sendMessageWithButtons(chatId, text, keyboard)
+    }
+
+    private fun handleConfirmation(chatId: Long, update: Update, state: ConversationState) {
+        val booking = bookingService.createBooking(chatId, update, state)
 
         val text =
             """
-                Вы записаны на $service
-                $slot
-                К мастеру $master
+                Вы записаны на ${booking.serviceToBook.title}
+                ${booking.timeSlot.startAt.toDisplayString()}
+                К мастеру ${booking.timeSlot.master.name}
             """.trimIndent()
+
         messageSender.sendTextMessage(chatId, text)
+        stateManager.resetState(chatId)
+    }
+
+    private fun handleCancellation(chatId: Long) {
+        val text = "Запись отменена"
+        messageSender.sendTextMessage(chatId, text)
+
+        stateManager.resetState(chatId)
     }
 }

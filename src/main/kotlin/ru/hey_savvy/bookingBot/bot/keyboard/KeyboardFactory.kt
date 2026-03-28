@@ -10,11 +10,11 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 
-fun mainMenuKeyboard(): InlineKeyboardMarkup {
-    val mainMenuButton = InlineKeyboardButton("Записаться")
-        .apply { callbackData = CallbackData.BOOKING_START.prefix }
-    return InlineKeyboardMarkup(listOf(listOf(mainMenuButton)))
-}
+fun mainMenuKeyboard(): InlineKeyboardMarkup  = constructKeyboard(
+    data = listOf("Записаться"),
+    buttonText = { "Записаться" },
+    callbackData = { CallbackData.BOOKING_START.prefix }
+)
 
 fun servicesKeyboard(serviceToBooks: List<ServiceToBook>): InlineKeyboardMarkup = constructKeyboard(
     data = serviceToBooks,
@@ -50,6 +50,17 @@ fun timeSlotsKeyboard(timeSlots: List<LocalTime>): InlineKeyboardMarkup = constr
     callbackData = { CallbackData.SLOT.prefix + ":" + it.toString() },
     rowSize = 3
 )
+
+fun confirmationsKeyboard(): InlineKeyboardMarkup {
+    val buttons = listOf(
+        InlineKeyboardButton("Подтвердить")
+            .apply { callbackData = CallbackData.CONFIRM.prefix },
+        InlineKeyboardButton("Отмена")
+            .apply { callbackData = CallbackData.CANCEL_FLOW.prefix }
+    )
+
+    return InlineKeyboardMarkup(listOf(buttons))
+}
 
 private fun <T> constructKeyboard(
     data: List<T>,
