@@ -25,7 +25,7 @@ class Booking(
     @Column(name = "client_name")
     val clientName: String,
     @JoinColumn(name = "service_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     val serviceToBook: ServiceToBook,
     @JoinColumn(name = "time_slot_id")
     @OneToOne(fetch = FetchType.EAGER)

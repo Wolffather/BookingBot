@@ -6,6 +6,7 @@ import ru.hey_savvy.bookingBot.bot.MessageSender
 import ru.hey_savvy.bookingBot.bot.keyboard.mainMenuKeyboard
 import ru.hey_savvy.bookingBot.bot.router.chatId
 import ru.hey_savvy.bookingBot.bot.state.ConversationStateManager
+import ru.hey_savvy.bookingBot.messages.book
 
 @Component
 class StartHandler(
@@ -18,7 +19,7 @@ class StartHandler(
         val chatId = update.chatId()
 
         stateManager.resetState(chatId)
-        messageSender.sendMessageWithButtons(chatId, "Записаться", keyboard)
+        messageSender.sendMessageWithButtons(chatId, book, keyboard)
     }
 
 

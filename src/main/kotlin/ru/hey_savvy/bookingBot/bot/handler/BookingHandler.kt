@@ -13,7 +13,9 @@ import ru.hey_savvy.bookingBot.bot.state.ConversationStateManager
 import ru.hey_savvy.bookingBot.bot.state.Step
 import ru.hey_savvy.bookingBot.service.BookingService
 import ru.hey_savvy.bookingBot.service.TimeSlotService
-import ru.hey_savvy.bookingBot.util.toDisplayString
+import ru.hey_savvy.bookingBot.messages.bookingCancelled
+import ru.hey_savvy.bookingBot.messages.bookingConfirmationRequest
+import ru.hey_savvy.bookingBot.messages.bookingInfo
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -94,29 +96,20 @@ class BookingHandler(
     }
 
     private fun showConfirmation(chatId: Long) {
-        val text = "Подтверждаете запись?"
         val keyboard = confirmationsKeyboard()
 
-        messageSender.sendMessageWithButtons(chatId, text, keyboard)
+        messageSender.sendMessageWithButtons(chatId, bookingConfirmationRequest, keyboard)
     }
 
     private fun handleConfirmation(chatId: Long, update: Update, state: ConversationState) {
         val booking = bookingService.createBooking(chatId, update, state)
 
-        val text =
-            """
-                Вы записаны на ${booking.serviceToBook.title}
-                ${booking.timeSlot.startAt.toDisplayString()}
-                К мастеру ${booking.timeSlot.master.name}
-            """.trimIndent()
-
-        messageSender.sendTextMessage(chatId, text)
+        messageSender.sendTextMessage(chatId, bookingInfo(booking))
         stateManager.resetState(chatId)
     }
 
     private fun handleCancellation(chatId: Long) {
-        val text = "Запись отменена"
-        messageSender.sendTextMessage(chatId, text)
+        messageSender.sendTextMessage(chatId, bookingCancelled)
 
         stateManager.resetState(chatId)
     }

@@ -11,6 +11,8 @@ import ru.hey_savvy.bookingBot.bot.state.ConversationState
 import ru.hey_savvy.bookingBot.bot.state.ConversationStateManager
 import ru.hey_savvy.bookingBot.bot.state.Step
 import ru.hey_savvy.bookingBot.service.ServiceToBookService
+import ru.hey_savvy.bookingBot.messages.chooseMaster
+import ru.hey_savvy.bookingBot.messages.chooseService
 
 @Component
 class ServiceHandler(
@@ -32,7 +34,7 @@ class ServiceHandler(
     private fun showServices(chatId: Long) {
         val services = serviceToBookService.findAvailableServices()
         val keyboard = servicesKeyboard(services)
-        messageSender.sendMessageWithButtons(chatId, "Выберите услугу:", keyboard)
+        messageSender.sendMessageWithButtons(chatId, chooseService, keyboard)
 
         stateManager.setState(chatId, ConversationState(step = Step.CHOOSING_SERVICE))
     }
@@ -47,6 +49,6 @@ class ServiceHandler(
 
         val masters = serviceToBookService.getMastersForService(serviceId)
         val keyboard = masterKeyboard(masters)
-        messageSender.sendMessageWithButtons(chatId, "Выберите мастера:", keyboard)
+        messageSender.sendMessageWithButtons(chatId, chooseMaster, keyboard)
     }
 }

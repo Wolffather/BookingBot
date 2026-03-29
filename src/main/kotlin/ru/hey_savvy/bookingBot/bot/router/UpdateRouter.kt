@@ -6,6 +6,7 @@ import ru.hey_savvy.bookingBot.bot.BotCommand
 import ru.hey_savvy.bookingBot.bot.CallbackData
 import ru.hey_savvy.bookingBot.bot.handler.BookingHandler
 import ru.hey_savvy.bookingBot.bot.handler.MasterHandler
+import ru.hey_savvy.bookingBot.bot.handler.MyBookingsHandler
 import ru.hey_savvy.bookingBot.bot.handler.ServiceHandler
 import ru.hey_savvy.bookingBot.bot.handler.StartHandler
 import ru.hey_savvy.bookingBot.bot.state.ConversationStateManager
@@ -17,9 +18,10 @@ class UpdateRouter(
     private val startHandler: StartHandler,
     private val serviceHandler: ServiceHandler,
     private val masterHandler: MasterHandler,
-    private val bookingHandler: BookingHandler
+    private val bookingHandler: BookingHandler,
+    private val myBookingsHandler: MyBookingsHandler
 
-) {
+    ) {
     fun route(update: Update) {
 
         if (update.hasMessage() && update.message.hasText()) {
@@ -41,7 +43,7 @@ class UpdateRouter(
     private fun routeCommand(botCommand: BotCommand, update: Update) {
         when (botCommand) {
             BotCommand.START -> startHandler.handle(update)
-            BotCommand.MY_BOOKINGS -> {}
+            BotCommand.MY_BOOKINGS -> myBookingsHandler.handle(update)
             BotCommand.CANCEL -> {}
         }
     }
@@ -52,10 +54,9 @@ class UpdateRouter(
         when (callback) {
             CallbackData.BOOKING_START, CallbackData.SERVICE -> serviceHandler.handle(update)
 
-            CallbackData.DATE, CallbackData.SLOT, CallbackData.CONFIRM -> bookingHandler.handle(update)
+            CallbackData.DATE, CallbackData.SLOT, CallbackData.CONFIRM, CallbackData.CANCEL_FLOW -> bookingHandler.handle(update)
 
-            CallbackData.CANCEL_FLOW -> {}
-            CallbackData.CANCEL_BOOKING -> {}
+            CallbackData.CANCEL_BOOKING -> myBookingsHandler.handle(update)
 
             CallbackData.MASTER, CallbackData.SKIP_MASTER -> masterHandler.handle(update)
 

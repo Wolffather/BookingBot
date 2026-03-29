@@ -3,16 +3,21 @@ package ru.hey_savvy.bookingBot.bot.keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import ru.hey_savvy.bookingBot.bot.CallbackData
+import ru.hey_savvy.bookingBot.models.Booking
 import ru.hey_savvy.bookingBot.models.Master
 import ru.hey_savvy.bookingBot.models.ServiceToBook
+import ru.hey_savvy.bookingBot.messages.book
+import ru.hey_savvy.bookingBot.messages.cancelButtonText
+import ru.hey_savvy.bookingBot.messages.confirmButtonText
+import ru.hey_savvy.bookingBot.messages.skipMaster
 import ru.hey_savvy.bookingBot.util.toDisplayString
 import java.time.LocalDate
 import java.time.LocalTime
 
 
 fun mainMenuKeyboard(): InlineKeyboardMarkup  = constructKeyboard(
-    data = listOf("Записаться"),
-    buttonText = { "Записаться" },
+    data = listOf(book),
+    buttonText = { book },
     callbackData = { CallbackData.BOOKING_START.prefix }
 )
 
@@ -30,7 +35,7 @@ fun masterKeyboard(masters: List<Master>): InlineKeyboardMarkup {
         callbackData = { CallbackData.MASTER.prefix + ":" + it.id }
     ).keyboard
 
-    val skipRow = listOf(InlineKeyboardButton("Не важно")
+    val skipRow = listOf(InlineKeyboardButton(skipMaster)
         .apply { callbackData = CallbackData.SKIP_MASTER.prefix })
 
     return InlineKeyboardMarkup(masterRows + listOf(skipRow))
@@ -53,14 +58,20 @@ fun timeSlotsKeyboard(timeSlots: List<LocalTime>): InlineKeyboardMarkup = constr
 
 fun confirmationsKeyboard(): InlineKeyboardMarkup {
     val buttons = listOf(
-        InlineKeyboardButton("Подтвердить")
+        InlineKeyboardButton(confirmButtonText)
             .apply { callbackData = CallbackData.CONFIRM.prefix },
-        InlineKeyboardButton("Отмена")
+        InlineKeyboardButton(cancelButtonText)
             .apply { callbackData = CallbackData.CANCEL_FLOW.prefix }
     )
 
     return InlineKeyboardMarkup(listOf(buttons))
 }
+
+fun cancelBookingKeyboard(booking: Booking): InlineKeyboardMarkup = constructKeyboard(
+    data = listOf(booking),
+    buttonText = { cancelButtonText },
+    callbackData = { CallbackData.CANCEL_BOOKING.prefix + ":" + booking.id },
+)
 
 private fun <T> constructKeyboard(
     data: List<T>,
