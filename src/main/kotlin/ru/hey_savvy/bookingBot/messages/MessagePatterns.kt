@@ -10,6 +10,20 @@ fun bookingInfo(booking: Booking) =
         К мастеру ${booking.timeSlot.master.name}
     """.trimIndent()
 
+fun masterConfirmationNotification(booking: Booking) =
+    """
+        Новая запись на ${booking.serviceToBook.title}
+        ${booking.timeSlot.startAt.toDisplayString()}
+        Клиент ${booking.clientName}
+    """.trimIndent()
+
+fun masterCancellationNotification(booking: Booking) =
+    """
+        Запись отменена: ${booking.serviceToBook.title}
+        ${booking.timeSlot.startAt.toDisplayString()}
+        Клиент ${booking.clientName}
+    """.trimIndent()
+
 const val book = "Записаться"
 const val noActiveBookings = "У Вас нет активных записей"
 const val bookingCancelled = "Запись отменена"

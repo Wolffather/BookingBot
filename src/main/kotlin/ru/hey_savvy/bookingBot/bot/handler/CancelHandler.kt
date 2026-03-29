@@ -8,7 +8,7 @@ import ru.hey_savvy.bookingBot.bot.state.ConversationStateManager
 @Component
 class CancelHandler(
     private val startHandler: StartHandler,
-    private val stateManager: ConversationStateManager
+    private val stateManager: ConversationStateManager,
 ) : Handler {
     override fun handle(update: Update) {
         val chatId = update.chatId()

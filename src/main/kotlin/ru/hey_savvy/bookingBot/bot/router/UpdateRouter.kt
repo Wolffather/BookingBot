@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import ru.hey_savvy.bookingBot.bot.BotCommand
 import ru.hey_savvy.bookingBot.bot.CallbackData
 import ru.hey_savvy.bookingBot.bot.handler.BookingHandler
+import ru.hey_savvy.bookingBot.bot.handler.CancelHandler
 import ru.hey_savvy.bookingBot.bot.handler.MasterHandler
 import ru.hey_savvy.bookingBot.bot.handler.MyBookingsHandler
 import ru.hey_savvy.bookingBot.bot.handler.ServiceHandler
@@ -19,7 +20,8 @@ class UpdateRouter(
     private val serviceHandler: ServiceHandler,
     private val masterHandler: MasterHandler,
     private val bookingHandler: BookingHandler,
-    private val myBookingsHandler: MyBookingsHandler
+    private val myBookingsHandler: MyBookingsHandler,
+    private val cancelHandler: CancelHandler,
 
     ) {
     fun route(update: Update) {
@@ -44,7 +46,7 @@ class UpdateRouter(
         when (botCommand) {
             BotCommand.START -> startHandler.handle(update)
             BotCommand.MY_BOOKINGS -> myBookingsHandler.handle(update)
-            BotCommand.CANCEL -> {}
+            BotCommand.CANCEL -> cancelHandler.handle(update)
         }
     }
 
@@ -54,7 +56,9 @@ class UpdateRouter(
         when (callback) {
             CallbackData.BOOKING_START, CallbackData.SERVICE -> serviceHandler.handle(update)
 
-            CallbackData.DATE, CallbackData.SLOT, CallbackData.CONFIRM, CallbackData.CANCEL_FLOW -> bookingHandler.handle(update)
+            CallbackData.DATE, CallbackData.SLOT, CallbackData.CONFIRM, CallbackData.CANCEL_FLOW -> bookingHandler.handle(
+                update
+            )
 
             CallbackData.CANCEL_BOOKING -> myBookingsHandler.handle(update)
 

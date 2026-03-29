@@ -16,10 +16,6 @@ class TimeSlotService(
 
     fun getSlotId(timeSlot: LocalDateTime): Long? = timeSlotRepository.findByStartAt(timeSlot)?.id
 
-    fun getMasterName(timeSlotId: Long): String? = timeSlotRepository.findById(timeSlotId).get().master.name
-
-    fun getSlot(timeSlotId: Long): LocalDateTime = timeSlotRepository.findById(timeSlotId).get().startAt
-
     fun findAvailableDates(masterId: Long?): List<LocalDate> {
         return withOrWithoutMaster(
             masterId,

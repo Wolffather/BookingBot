@@ -52,7 +52,7 @@ class BookingService(
 
     fun getActiveBookingsForClient(id: Long): List<Booking> = bookingRepository.findAllByClientTelegramIdAndStatus(id, Status.ACTIVE)
 
-    fun cancelBooking(id: Long) {
+    fun cancelBooking(id: Long): Booking {
         val booking = bookingRepository.findById(id).orElseThrow { NoSuchElementException("Booking not found") }
         val timeSlot = booking.timeSlot
 
@@ -74,6 +74,7 @@ class BookingService(
         bookingRepository.save(cancelledBooking)
         timeSlotRepository.save(freedUpSlot)
 
+        return cancelledBooking
     }
 
 

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component
 import org.telegram.telegrambots.meta.api.objects.Update
 import ru.hey_savvy.bookingBot.bot.CallbackData
 import ru.hey_savvy.bookingBot.bot.MessageSender
+import ru.hey_savvy.bookingBot.bot.NotificationService
 import ru.hey_savvy.bookingBot.bot.keyboard.confirmationsKeyboard
 import ru.hey_savvy.bookingBot.bot.keyboard.datesKeyboard
 import ru.hey_savvy.bookingBot.bot.keyboard.timeSlotsKeyboard
@@ -25,7 +26,8 @@ class BookingHandler(
     private val messageSender: MessageSender,
     private val stateManager: ConversationStateManager,
     private val timeSlotService: TimeSlotService,
-    private val bookingService: BookingService
+    private val bookingService: BookingService,
+    private val notificationService: NotificationService
 ) : Handler {
     override fun handle(update: Update) {
         val chatId = update.chatId()
@@ -105,6 +107,7 @@ class BookingHandler(
         val booking = bookingService.createBooking(chatId, update, state)
 
         messageSender.sendTextMessage(chatId, bookingInfo(booking))
+        notificationService.notifyMasterOnConfirm(booking)
         stateManager.resetState(chatId)
     }
 
